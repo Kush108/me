@@ -40,6 +40,6 @@ export function scoreJob(job: Partial<Job>): Job {
   return {
     ...job,
     matchScore: score,
-    matchReasons: [...new Set(reasons)].slice(0, 8),
+    matchReasons: Array.from(new Set(reasons)).slice(0, 8),
   } as Job;
 }
