@@ -1,6 +1,6 @@
 # Job Ops Dashboard — me.flowgrid.ca
 
-Private password-protected job search dashboard. Aggregates public RSS feeds, scores listings against your profile, and uses OpenAI (`gpt-4o-mini`) to tailor resume summaries and cover letters.
+Private password-protected job search dashboard. Fetches jobs via JSearch (RapidAPI), scores listings with OpenAI (`gpt-4o-mini`), and tailors resume summaries and cover letters per posting.
 
 ## Setup
 
@@ -14,9 +14,12 @@ cp .env.example .env.local
 
 ```
 OPENAI_API_KEY=sk-...
+RAPIDAPI_KEY=your_rapidapi_key
 DASHBOARD_PASSWORD=your-strong-password
 NEXT_PUBLIC_APP_URL=https://me.flowgrid.ca
 ```
+
+Add the same variables in your Vercel/hosting dashboard (never commit `.env.local`).
 
 3. Install and run:
 

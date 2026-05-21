@@ -96,7 +96,7 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-start gap-4 p-5 border-b border-border shrink-0">
-          <ScoreBadge score={job.matchScore} />
+          <ScoreBadge score={job.matchScore} unscored={job.unscored} />
           <div className="flex-1 min-w-0">
             <h2 className="font-mono text-lg text-text-primary">{job.title}</h2>
             <p className="font-sans text-sm text-text-muted">

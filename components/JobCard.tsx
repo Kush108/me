@@ -32,7 +32,7 @@ export function JobCard({ job, onSave, onTailor, onOpen }: JobCardProps) {
   return (
     <article className="bg-bg-card border border-border rounded-lg p-4 flex flex-col gap-3 hover:border-accent/40 transition-colors">
       <div className="flex gap-3">
-        <ScoreBadge score={job.matchScore} />
+        <ScoreBadge score={job.matchScore} unscored={job.unscored} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-2">
             <span
@@ -54,6 +54,12 @@ export function JobCard({ job, onSave, onTailor, onOpen }: JobCardProps) {
       </div>
 
       <p className="text-xs text-text-muted leading-relaxed">{excerpt}</p>
+
+      {job.matchNote && !job.unscored && (
+        <p className="text-xs text-text-primary/80 italic leading-snug">
+          {job.matchNote}
+        </p>
+      )}
 
       {job.matchReasons.length > 0 && (
         <div className="flex flex-wrap gap-1">

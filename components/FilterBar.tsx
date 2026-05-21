@@ -1,6 +1,6 @@
 "use client";
 
-import { JOB_FEEDS } from "@/lib/jobSources";
+import { JOB_SOURCES } from "@/lib/jobSources";
 import { JobStatus } from "@/types/job";
 
 interface FilterBarProps {
@@ -45,7 +45,7 @@ export function FilterBar({
             className="w-full bg-bg-card border border-border rounded px-3 py-2 text-sm font-mono text-text-primary focus:outline-none focus:border-accent"
           >
             <option value="all">All sources</option>
-            {JOB_FEEDS.map((f) => (
+            {JOB_SOURCES.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>

@@ -7,6 +7,11 @@ import { JobCard } from "@/components/JobCard";
 import { JobModal } from "@/components/JobModal";
 import { FilterBar } from "@/components/FilterBar";
 import { mergeJobsWithStorage, saveJobStatus } from "@/lib/storage";
+import {
+  clearJobsCache,
+  getJobsCache,
+  setJobsCache,
+} from "@/lib/jobsCache";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -23,37 +28,84 @@ export default function DashboardPage() {
 
   const [modalJob, setModalJob] = useState<Job | null>(null);
 
-  const fetchJobs = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/jobs");
-      if (res.status === 401) {
-        router.push("/");
-        return;
-      }
-      if (!res.ok) throw new Error("Failed to load jobs");
-      const data = await res.json();
-      const merged = mergeJobsWithStorage(data.jobs as Job[]);
+  const applyJobsPayload = useCallback(
+    (data: {
+      jobs: Job[];
+      fetchedAt: string;
+      feedErrors?: string[];
+      rateLimited?: boolean;
+    }) => {
+      const merged = mergeJobsWithStorage(data.jobs);
       setJobs(merged);
       setFetchedAt(data.fetchedAt);
       setFeedErrors(data.feedErrors || []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Load failed");
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+      if (data.rateLimited) {
+        setError("Rate limited — try again in 60 seconds");
+      }
+    },
+    []
+  );
+
+  const fetchJobs = useCallback(
+    async (forceRefresh = false) => {
+      if (!forceRefresh) {
+        const cached = getJobsCache();
+        if (cached) {
+          applyJobsPayload(cached);
+          setLoading(false);
+          return;
+        }
+      } else {
+        clearJobsCache();
+      }
+
+      setLoading(true);
+      setError(null);
+      setFeedErrors([]);
+
+      try {
+        const res = await fetch("/api/jobs", { cache: "no-store" });
+        if (res.status === 401) {
+          router.push("/");
+          return;
+        }
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to load jobs");
+        }
+        const data = await res.json();
+
+        const payload = {
+          jobs: data.jobs as Job[],
+          fetchedAt: data.fetchedAt as string,
+          feedErrors: data.feedErrors as string[] | undefined,
+          rateLimited: data.rateLimited as boolean | undefined,
+        };
+
+        setJobsCache(payload);
+        applyJobsPayload(payload);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Load failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router, applyJobsPayload]
+  );
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(false);
   }, [fetchJobs]);
 
   const filteredJobs = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return jobs.filter((job) => {
       if (sourceFilter !== "all" && job.source !== sourceFilter) return false;
-      if (job.matchScore < minScore) return false;
+      if (job.unscored) {
+        if (minScore > 0) return false;
+      } else if (job.matchScore < minScore) {
+        return false;
+      }
       if (statusFilter !== "all" && job.status !== statusFilter) return false;
       if (q) {
         const hay = `${job.title} ${job.company} ${job.description} ${job.location}`.toLowerCase();
@@ -95,7 +147,7 @@ export default function DashboardPage() {
 
   const stats = {
     total: jobs.length,
-    high: jobs.filter((j) => j.matchScore >= 60).length,
+    high: jobs.filter((j) => !j.unscored && j.matchScore >= 60).length,
     saved: jobs.filter((j) => j.status === "saved").length,
     applied: jobs.filter((j) => j.status === "applied").length,
   };
@@ -123,7 +175,7 @@ export default function DashboardPage() {
           )}
           <button
             type="button"
-            onClick={fetchJobs}
+            onClick={() => fetchJobs(true)}
             disabled={loading}
             className="font-sans text-sm px-4 py-2 rounded border border-border hover:border-accent hover:text-accent disabled:opacity-50 transition-colors"
           >
@@ -139,9 +191,9 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {feedErrors.length > 0 && (
+      {feedErrors.length > 0 && !error?.includes("Rate limited") && (
         <div className="text-xs font-mono text-score-yellow border border-score-yellow/30 rounded p-3 bg-score-yellow/5">
-          Feed warnings: {feedErrors.join(" · ")}
+          Source warnings: {feedErrors.join(" · ")}
         </div>
       )}
 
@@ -165,7 +217,7 @@ export default function DashboardPage() {
       {loading && jobs.length === 0 ? (
         <div className="grid place-items-center py-24">
           <p className="font-mono text-accent animate-pulse">
-            Scanning job feeds…
+            Fetching jobs & scoring matches…
           </p>
         </div>
       ) : filteredJobs.length === 0 ? (

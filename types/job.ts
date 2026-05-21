@@ -12,6 +12,8 @@ export interface Job {
   postedDate: string;
   matchScore: number;
   matchReasons: string[];
+  matchNote?: string;
+  unscored?: boolean;
   status: JobStatus;
   tailoredSummary?: string;
   tailoredCoverLetter?: string;
