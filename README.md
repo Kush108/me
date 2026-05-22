@@ -61,9 +61,25 @@ server {
 - `robots: noindex` on all pages.
 - Do not commit `.env.local`.
 
+## v2.1 — Local-first job ops
+
+- **No API on page load** — opens feed + archive from `jobOpsProfile_v2` in localStorage.
+- **Persistent feed snapshot** — last scan kept indefinitely (not limited to 2 hours).
+- **Saved library** — full job cards archived locally; **Saved** and **Library** tabs never call APIs.
+- **Scan for new jobs** — only action that hits RapidAPI + OpenAI (new IDs scored once).
+- **Notes, restore, export/import** — per-job notes; restore Passed/Later; JSON backup of entire profile.
+- **View vs Tailor** — View opens details without OpenAI; Tailor runs API once then caches locally.
+
+Resume hints: `resume/Kushal_Grover_Resume.docx`, `resume/Kushal_Grover_GoA_SAP_CoverLetter.docx` → reflected in `lib/profile.ts` and `lib/jobSources.ts` (SAP/IAM, GoA, vuln analyst, etc.).
+
+### Add more roles
+
+Edit `lib/profile.ts` (`targetRoles`, `preferredEmployers`, `prioritySearchThemes`) and `lib/jobSources.ts` `ROTATING_JOB_SOURCES`.
+
 ## Future
 
 - Daily email digest (Vercel cron)
 - PDF resume export
-- SerpAPI fallback if RSS feeds break
+- SerpAPI fallback for broader employer coverage
 - Per-job notes field
+- Optional encrypted profile export/import

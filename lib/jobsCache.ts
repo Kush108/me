@@ -10,16 +10,28 @@ export interface JobsCachePayload {
   rateLimited?: boolean;
 }
 
+export function isJobsCacheStale(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return true;
+    const parsed = JSON.parse(raw) as JobsCachePayload & { cachedAt?: string };
+    const cachedAt = parsed.cachedAt
+      ? new Date(parsed.cachedAt).getTime()
+      : new Date(parsed.fetchedAt).getTime();
+    return Date.now() - cachedAt > TTL_MS;
+  } catch {
+    return true;
+  }
+}
+
 export function getJobsCache(): JobsCachePayload | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as JobsCachePayload & { cachedAt?: string };
-    const cachedAt = parsed.cachedAt
-      ? new Date(parsed.cachedAt).getTime()
-      : new Date(parsed.fetchedAt).getTime();
-    if (Date.now() - cachedAt > TTL_MS) {
+    if (isJobsCacheStale()) {
       localStorage.removeItem(CACHE_KEY);
       return null;
     }

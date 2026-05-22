@@ -5,21 +5,55 @@ import { Job, TailorResponse } from "@/types/job";
 import { TailoredOutput } from "./TailoredOutput";
 import { ScoreBadge } from "./ScoreBadge";
 import { saveJobStatus } from "@/lib/storage";
+import type { DismissReason } from "@/lib/profileStore";
+
+export type JobModalMode = "details" | "tailor";
 
 interface JobModalProps {
   job: Job | null;
+  mode: JobModalMode;
   onClose: () => void;
   onStatusChange: (job: Job, status: Job["status"]) => void;
+  onDismiss?: (job: Job, reason: DismissReason) => void;
+  onRestore?: (job: Job) => void;
+  onNotesChange?: (jobId: string, notes: string) => void;
 }
 
-export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
+export function JobModal({
+  job,
+  mode,
+  onClose,
+  onStatusChange,
+  onDismiss,
+  onRestore,
+  onNotesChange,
+}: JobModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tailored, setTailored] = useState<TailorResponse | null>(null);
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (!job) return;
+    setNotes(job.notes || "");
     setError(null);
+
+    if (mode !== "tailor") {
+      if (job.tailoredSummary && job.tailoredCoverLetter) {
+        setTailored({
+          tailoredSummary: job.tailoredSummary,
+          coverLetter: job.tailoredCoverLetter,
+          keywordsMatched: job.matchReasons,
+          missingSkills: [],
+          matchNotes: "",
+        });
+      } else {
+        setTailored(null);
+      }
+      setLoading(false);
+      return;
+    }
+
     if (job.tailoredSummary && job.tailoredCoverLetter) {
       setTailored({
         tailoredSummary: job.tailoredSummary,
@@ -31,6 +65,7 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
       setLoading(false);
       return;
     }
+
     setTailored(null);
     setLoading(true);
 
@@ -77,7 +112,7 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
 
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [job?.id]);
+  }, [job?.id, mode]);
 
   if (!job) return null;
 
@@ -85,6 +120,17 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
     saveJobStatus(job.id, { status: "applied" });
     onStatusChange({ ...job, status: "applied" }, "applied");
   };
+
+  const copyText = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      alert(`Copy ${label} manually from the modal.`);
+    }
+  };
+
+  const canRestore =
+    job.status === "dismissed" || job.status === "later";
 
   return (
     <div
@@ -102,6 +148,12 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
             <p className="font-sans text-sm text-text-muted">
               {job.company} · {job.location}
             </p>
+            {job.savedAt && (
+              <p className="font-mono text-[10px] text-accent mt-1">
+                Saved to profile ·{" "}
+                {new Date(job.savedAt).toLocaleDateString("en-CA")}
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -118,12 +170,26 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
             <h3 className="font-mono text-xs text-text-muted uppercase mb-2">
               Posting
             </h3>
-            <p className="text-sm text-text-primary leading-relaxed max-h-40 overflow-y-auto bg-bg-secondary p-3 rounded border border-border">
-              {job.description || "No description in feed."}
+            <p className="text-sm text-text-primary leading-relaxed max-h-48 overflow-y-auto bg-bg-secondary p-3 rounded border border-border whitespace-pre-wrap">
+              {job.description || "No description stored."}
             </p>
           </section>
 
-          {loading && (
+          <section>
+            <h3 className="font-mono text-xs text-text-muted uppercase mb-2">
+              Your notes (saved locally)
+            </h3>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              onBlur={() => onNotesChange?.(job.id, notes)}
+              rows={3}
+              placeholder="Interview date, contact name, follow-up…"
+              className="w-full bg-bg-secondary border border-border rounded p-3 text-sm text-text-primary font-sans resize-y focus:outline-none focus:border-accent"
+            />
+          </section>
+
+          {loading && mode === "tailor" && (
             <div className="flex items-center gap-3 py-8 justify-center">
               <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="font-mono text-sm text-accent">
@@ -138,16 +204,86 @@ export function JobModal({ job, onClose, onStatusChange }: JobModalProps) {
             </p>
           )}
 
-          {tailored && !loading && <TailoredOutput data={tailored} />}
+          {tailored && !loading && (
+            <>
+              <TailoredOutput data={tailored} />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyText(tailored.tailoredSummary, "summary")}
+                  className="text-xs font-sans px-2 py-1 rounded border border-border hover:text-accent"
+                >
+                  Copy summary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => copyText(tailored.coverLetter, "cover letter")}
+                  className="text-xs font-sans px-2 py-1 rounded border border-border hover:text-accent"
+                >
+                  Copy cover letter
+                </button>
+              </div>
+            </>
+          )}
+
+          {mode === "details" && !tailored && !loading && (
+            <p className="text-sm text-text-muted font-sans">
+              Open &quot;Tailor with AI&quot; to generate resume summary and cover
+              letter (uses OpenAI once, then saved locally).
+            </p>
+          )}
         </div>
 
         <footer className="flex flex-wrap gap-2 p-5 border-t border-border shrink-0">
+          {canRestore && onRestore && (
+            <button
+              type="button"
+              onClick={() => {
+                onRestore(job);
+                onClose();
+              }}
+              className="font-sans text-sm px-4 py-2 rounded border border-accent text-accent hover:bg-accent-dim"
+            >
+              Restore to feed
+            </button>
+          )}
+          {onDismiss && job.status !== "dismissed" && (
+            <button
+              type="button"
+              onClick={() => {
+                onDismiss(job, "not_interested");
+                onClose();
+              }}
+              className="font-sans text-sm px-4 py-2 rounded border border-score-red/40 text-score-red hover:bg-score-red/10"
+            >
+              Not interested
+            </button>
+          )}
+          {onDismiss && job.status !== "later" && job.status !== "dismissed" && (
+            <button
+              type="button"
+              onClick={() => {
+                onDismiss(job, "later");
+                onClose();
+              }}
+              className="font-sans text-sm px-4 py-2 rounded border border-score-yellow/40 text-score-yellow hover:bg-score-yellow/10"
+            >
+              Maybe later
+            </button>
+          )}
           <button
             type="button"
             onClick={markApplied}
             className="font-sans text-sm px-4 py-2 rounded bg-score-green/20 border border-score-green text-score-green hover:bg-score-green/30"
           >
             Mark as Applied
+          </button>
+          <button
+            type="button"
+            onClick={() => copyText(job.url, "link")}
+            className="font-sans text-sm px-4 py-2 rounded border border-border hover:text-accent"
+          >
+            Copy link
           </button>
           <a
             href={job.url}

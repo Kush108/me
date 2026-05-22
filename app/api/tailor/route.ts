@@ -3,19 +3,20 @@ import { MY_PROFILE } from "@/lib/profile";
 import { isAuthenticated } from "@/lib/auth";
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 export async function POST(req: NextRequest) {
   if (!isAuthenticated()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (!openaiKey) {
     return NextResponse.json(
       { error: "OpenAI API key not configured" },
       { status: 500 }
     );
   }
+
+  const openai = new OpenAI({ apiKey: openaiKey });
 
   const { jobTitle, company, jobDescription } = await req.json();
 

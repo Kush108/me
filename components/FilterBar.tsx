@@ -8,18 +8,22 @@ interface FilterBarProps {
   onSourceChange: (value: string) => void;
   minScore: number;
   onMinScoreChange: (value: number) => void;
-  statusFilter: JobStatus | "all";
-  onStatusChange: (value: JobStatus | "all") => void;
+  statusFilter: JobStatus | "all" | "library";
+  onStatusChange: (value: JobStatus | "all" | "library") => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  hideDismissed: boolean;
+  onHideDismissedChange: (value: boolean) => void;
 }
 
-const STATUS_TABS: { id: JobStatus | "all"; label: string }[] = [
-  { id: "all", label: "All" },
+const STATUS_TABS: { id: JobStatus | "all" | "library"; label: string }[] = [
+  { id: "all", label: "Feed" },
   { id: "saved", label: "Saved" },
+  { id: "library", label: "Library" },
+  { id: "later", label: "Later" },
   { id: "tailored", label: "Tailored" },
   { id: "applied", label: "Applied" },
-  { id: "rejected", label: "Rejected" },
+  { id: "dismissed", label: "Passed" },
 ];
 
 export function FilterBar({
@@ -31,6 +35,8 @@ export function FilterBar({
   onStatusChange,
   searchQuery,
   onSearchChange,
+  hideDismissed,
+  onHideDismissedChange,
 }: FilterBarProps) {
   return (
     <div className="bg-bg-secondary border border-border rounded-lg p-4 space-y-4">
@@ -82,7 +88,7 @@ export function FilterBar({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -97,6 +103,17 @@ export function FilterBar({
             {tab.label}
           </button>
         ))}
+        {statusFilter === "all" && (
+          <label className="flex items-center gap-2 ml-auto font-sans text-xs text-text-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hideDismissed}
+              onChange={(e) => onHideDismissedChange(e.target.checked)}
+              className="accent-accent"
+            />
+            Hide passed / later
+          </label>
+        )}
       </div>
     </div>
   );

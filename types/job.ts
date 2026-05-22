@@ -1,4 +1,11 @@
-export type JobStatus = "new" | "saved" | "tailored" | "applied" | "rejected";
+export type JobStatus =
+  | "new"
+  | "saved"
+  | "tailored"
+  | "applied"
+  | "rejected"
+  | "dismissed"
+  | "later";
 
 export interface Job {
   id: string;
@@ -18,6 +25,10 @@ export interface Job {
   tailoredSummary?: string;
   tailoredCoverLetter?: string;
   tailoredAt?: string;
+  /** Local-only notes (profile archive) */
+  notes?: string;
+  /** When saved to profile library */
+  savedAt?: string;
 }
 
 export interface JobStatusEntry {
@@ -26,6 +37,7 @@ export interface JobStatusEntry {
   tailoredCoverLetter?: string;
   tailoredAt?: string;
   notes?: string;
+  savedAt?: string;
 }
 
 export type JobStatusesMap = Record<string, JobStatusEntry>;

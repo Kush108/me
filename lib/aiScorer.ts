@@ -1,8 +1,9 @@
 import OpenAI from "openai";
 import { Job } from "@/types/job";
+import { MY_PROFILE } from "@/lib/profile";
+import type { ScoreCacheEntry } from "@/lib/profileStore";
 
-export const CANDIDATE_PROFILE =
-  "Kushal Grover — IT & Security Specialist, Edmonton AB. Skills: CompTIA Security+, ISC2 CC, Cisco CyberOps, Microsoft Azure/Entra ID, Fortinet, SIEM/ELK, vulnerability assessment, incident response, Python, PowerShell, Fortinet NSE 1-3. 2+ years MSP experience across 15+ clients. NAIT Network Engineering Technology diploma. Built autonomous AI pipeline using OpenAI, make.com, Brevo.";
+export const CANDIDATE_PROFILE = `${MY_PROFILE.name} — ${MY_PROFILE.targetRoles.slice(0, 4).join(", ")}. ${MY_PROFILE.summary.replace(/\s+/g, " ").trim().slice(0, 500)}`;
 
 const SYSTEM_PROMPT = `You are a job match scorer. Given a job posting and a candidate profile, return ONLY a JSON object with: score (0-100 integer), reason (one sentence), strengths (array of 2-3 matching points), gaps (array of 0-2 missing points). No markdown, no preamble.`;
 
@@ -118,4 +119,23 @@ export async function scoreJobsWithAI(
   }
 
   return results;
+}
+
+/** Apply client score cache — skips OpenAI for known job IDs */
+export function applyCachedScores(
+  jobs: Partial<Job>[],
+  scoreCache: Record<string, ScoreCacheEntry>
+): Partial<Job>[] {
+  return jobs.map((job) => {
+    if (!job.id) return job;
+    const cached = scoreCache[job.id];
+    if (!cached) return job;
+    return {
+      ...job,
+      matchScore: cached.matchScore,
+      matchReasons: cached.matchReasons,
+      matchNote: cached.matchNote,
+      unscored: false,
+    };
+  });
 }

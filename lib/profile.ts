@@ -1,3 +1,7 @@
+/**
+ * Server-side candidate profile — synced with resume/Kushal_Grover_Resume.docx
+ * and GoA SAP cover letter (resume/Kushal_Grover_GoA_SAP_CoverLetter.docx).
+ */
 export const MY_PROFILE = {
   name: "Kushal Grover",
   location: "Edmonton, AB",
@@ -9,13 +13,18 @@ export const MY_PROFILE = {
   targetRoles: [
     "IT Security Analyst",
     "Cybersecurity Analyst",
-    "Information Security Officer",
-    "Network Security Analyst",
     "SOC Analyst",
+    "SAP Junior Security Analyst",
+    "SAP Security Analyst",
+    "Identity and Access Management Analyst",
+    "GRC Analyst",
+    "Cloud Security Engineer",
+    "Network Security Analyst",
+    "Vulnerability Assessment Analyst",
     "Systems Administrator",
     "IT Specialist",
-    "Cloud Security Engineer",
-    "AI/Automation Developer",
+    "Microsoft 365 Administrator",
+    "AI Automation Developer",
     "Full Stack Developer",
   ],
 
@@ -24,83 +33,79 @@ export const MY_PROFILE = {
   preferredEmployers: [
     "Government of Alberta",
     "Government of Canada",
+    "Alberta Technology and Innovation",
+    "1GX",
     "City of Edmonton",
     "City of Calgary",
     "Alberta Health Services",
     "NAIT",
     "University of Alberta",
-    "Telus",
-    "Shaw",
     "ATB Financial",
+    "Telus",
   ],
 
-  summary: `Edmonton-based cybersecurity and IT professional with 2+ years full-time MSP experience 
-across 15+ client environments. Holds CompTIA Security+, ISC2 CC, Cisco CyberOps Associate, 
-Fortinet NSE 1-3, Microsoft SC-900, AZ-900, AZ-AI. NAIT Network Engineering Technology Diploma (2023). 
-Skilled in SIEM (Security Onion, ELK, Sentinel), vulnerability assessment, incident response, 
-Microsoft 365/Azure/Entra ID, Fortinet FortiGate, IDS/IPS, Python/PowerShell automation, 
-and AI-powered workflow integration. Founder of FlowGrid (flowgrid.ca), a production AI-powered SaaS platform.`,
+  summary: `Edmonton-based cybersecurity and IT professional with 3 years full-time MSP experience 
+across 15+ client environments. Expertise in SIEM (Security Onion, ELK, Sentinel), vulnerability 
+assessment, incident response, Fortinet FortiGate, Microsoft 365/Azure/Entra ID, Conditional Access, 
+and access-management workflows parallel to SAP security (provisioning, RBAC, access reviews, audit). 
+CompTIA Security+, ISC2 CC, Cisco CyberOps Associate (52-lab programme), Fortinet NSE 1-3, 
+Microsoft SC-900, AZ-900, AZ-AI. NAIT Network Engineering Technology Diploma (2023). 
+Founder of FlowGrid (flowgrid.ca) and WageChecker (wagechecker.ca) — production AI-powered platforms.`,
 
   skills: [
     "Security Onion",
     "ELK Stack",
     "Microsoft Sentinel",
-    "Defender for Cloud",
-    "Wazuh",
-    "Snort IDS",
-    "Cisco Packet Tracer",
-    "Kali Linux",
-    "Burp Suite",
-    "Nmap",
-    "Wireshark",
-    "Metasploitable",
-    "DVWA",
-    "Azure Entra ID",
+    "Microsoft Defender for Cloud",
     "Conditional Access",
+    "Identity Protection",
+    "Azure Entra ID",
     "Microsoft 365 Admin",
+    "access reviews",
+    "user provisioning",
+    "role-based access control",
     "Fortinet FortiGate",
+    "Snort IDS",
     "OPNsense",
-    "pfSense",
-    "IPsec VPN",
-    "VLAN",
+    "SIEM",
+    "SOC operations",
+    "Vulnerability assessment",
+    "CVE/CWE analysis",
+    "incident response",
     "Python",
     "PowerShell",
-    "Bash",
-    "AI workflow integration",
-    "automation scripting",
-    "Vulnerability assessment",
-    "penetration testing",
-    "CVE/CWE analysis",
-    "Incident response",
-    "SOC operations",
+    "Kali Linux",
+    "Nmap",
+    "Burp Suite",
+    "CIS Benchmarks",
+    "GRC",
     "risk registers",
-    "Full-stack development",
     "Next.js",
     "React",
-    "Node.js",
+    "AI workflow integration",
     "CompTIA Security+",
     "ISC2 CC",
     "Cisco CyberOps",
     "Fortinet NSE",
-    "AZ-900",
-    "SC-900",
   ],
 
   experience: `
 IT & Security Specialist — Hearthstone Consulting & Development Ltd. (June 2023 – Present)
-- Vulnerability assessments across 15+ client environments with CVE/CWE-aligned risk ratings
-- SIEM monitoring with Security Onion, ELK Stack, Microsoft Defender — alert triage and incident response
-- Microsoft 365, Azure Entra ID, Fortinet configuration — Conditional Access, IDS/IPS, firewall policies
-- Python and PowerShell automation for port scanning, log parsing, access reviews
-- Client-facing risk communication — translating CVE data to plain-language remediation plans
+- Continuous SIEM monitoring (Security Onion, ELK, Microsoft Defender) across 15+ MSP clients
+- Fortinet FortiGate, IPS/IDS, VPN; vulnerability assessments with CVE/CWE risk ratings
+- Microsoft 365, Entra ID, Conditional Access, Identity Protection, Secure Score
+- Azure misconfiguration remediation (Defender for Cloud, CIS Benchmarks)
+- Python/PowerShell automation — port scanning, log parsing, access reviews
+- Client-facing risk communication and incident documentation with evidence trails
 
 Student Lab Monitor — NAIT (Jan 2022 – Apr 2023)
-- Access control for 30-station IT lab, student technical support, lab infrastructure maintenance
+- 30-station IT lab access control, patching, security coursework support
   `,
 
   education: `
 Diploma — Network Engineering Technology, NAIT, Edmonton AB (2021–2023)
 Coursework: Network Security, Ethical Hacking, Routing & Switching, Cloud Computing, Windows Server
+Capstone: Hybrid on-prem/Azure deployment with IDS, firewall, security runbook
   `,
 
   certifications: [
@@ -114,9 +119,19 @@ Coursework: Network Security, Ethical Hacking, Routing & Switching, Cloud Comput
   ],
 
   projects: `
-FlowGrid (flowgrid.ca) — Founded and shipped a production AI-powered SaaS platform for field-service operations.
-Network Security Home Lab — OPNsense firewall, Snort IDS, ELK SIEM, offensive practice on Metasploitable/DVWA.
-NAIT Capstone — Hybrid on-prem/Azure network deployment for real client with IDS, firewall, and security runbook.
-Cisco CyberOps 52-Lab Programme — Completed May 2025; intrusion detection, malware analysis, forensics, SOC metrics.
+FlowGrid (flowgrid.ca) — AI-powered SaaS for field-service operations with automated lead pipeline.
+WageChecker (wagechecker.ca) — Public compliance tool with AI-structured analysis.
+Network Security Home Lab — OPNsense, Snort IDS, ELK SIEM, Metasploitable/DVWA practice.
+NAIT Capstone — Hybrid on-prem/Azure network for real client with IDS and security runbook.
+Cisco CyberOps 52-Lab Programme — IDS, malware analysis, forensics, SOC metrics (May 2025).
   `,
+
+  /** Roles with direct evidence in resume/cover letter — prioritize in search rotation */
+  prioritySearchThemes: [
+    "SAP security analyst Government of Alberta",
+    "identity access management GRC Azure",
+    "cybersecurity SOC analyst Edmonton",
+    "vulnerability assessment analyst",
+    "systems administrator Microsoft 365",
+  ],
 };

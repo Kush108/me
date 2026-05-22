@@ -85,13 +85,15 @@ function mapRowToJob(row: JSearchJobRow, source: JobSource): Partial<Job> | null
 
 export async function fetchJSearchSource(
   source: JobSource,
-  apiKey: string
+  apiKey: string,
+  options?: { page?: number; datePosted?: "today" | "week" | "month" }
 ): Promise<JSearchFetchResult> {
+  const page = Math.max(1, Math.min(5, options?.page ?? 1));
   const params = new URLSearchParams({
     query: buildSearchQuery(source),
-    page: "1",
+    page: String(page),
     num_pages: "1",
-    date_posted: "week",
+    date_posted: options?.datePosted ?? "week",
     country: "ca",
   });
 

@@ -39,3 +39,9 @@ next-env.d.ts
 # local npm cache attempts
 .npm-cache/
 npm-cache/
+
+# resume docx extract temp
+resume/_r/
+resume/_c/
+resume/_r.zip
+resume/_c.zip
